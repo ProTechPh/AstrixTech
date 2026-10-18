@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette — deepened for the cinematic FROMSOFTWARE-inspired look */
+  --color-background: #060a14;
+  --color-surface: #0b1122;
+  --color-surface-raised: #111a30;
+  --color-abyss: #030509;
+  --color-primary: #146bff;
+  --color-primary-foreground: #ffffff;
+  --color-highlight: #54b7ff;
+  --color-foreground: #f8fafc;
+  --color-muted: #94a3b8;
+
+  /* Typography */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-oswald), var(--font-geist-sans), ui-sans-serif,
+    system-ui, sans-serif;
+
+  /* Absolute square-corner system (fromsoftware-style stark geometry).
+     `rounded-full` stays untouched for dots/toggles. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+
+  /* Spacing baseline (8px system) */
+  --spacing-section: 6rem;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Animations */
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-glow-drift: glow-drift 12s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes glow-drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 0.55;
+    }
+    50% {
+      transform: translate3d(6%, -4%, 0) scale(1.12);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-white/8 outline-primary/40;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-primary/35 text-white;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-highlight;
+  }
+
+  /* Native form controls (e.g. the browser's select dropdown popup) must
+     render with the brand's dark surfaces instead of the OS light theme. */
+  select,
+  option {
+    color-scheme: dark;
+    background-color: var(--color-surface);
+    color: var(--color-foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Hero background grid */
+  .hero-grid {
+    background-image:
+      linear-gradient(
+        to right,
+        rgba(148, 163, 184, 0.08) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(148, 163, 184, 0.08) 1px,
+        transparent 1px
+      );
+    background-size: 56px 56px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-grid {
+      animation: grid-drift 24s linear infinite;
+    }
+  }
+
+  @keyframes grid-drift {
+    to {
+      background-position: 56px 56px;
+    }
+  }
+
+  /* Spec-sheet grid used in services and detail tables */
+  .spec-grid-lines {
+    background-image: linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(50% - 1px),
+      rgba(148, 163, 184, 0.1) 50%,
+      transparent calc(50% + 1px),
+      transparent 100%
+    );
+  }
+
+  /* Index-row hover bar (FROMSOFTWARE-style list rows) */
+  .index-row {
+    @apply relative grid grid-cols-[auto_1fr_auto] items-center gap-x-5 gap-y-2 border-b border-white/8 px-2 py-6 transition-colors duration-300 sm:px-4;
+  }
+
+  .index-row::after {
+    content: "";
+    @apply absolute inset-y-0 left-0 w-0 bg-highlight/60 transition-all duration-300;
+  }
+
+  .index-row:hover::after,
+  .index-row:focus-visible::after {
+    @apply w-1;
+  }
+
+  /* Restrained blue gradient for display text */
+  .text-gradient {
+    @apply bg-gradient-to-b from-white via-white to-highlight/80 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-blue {
+    @apply bg-gradient-to-r from-highlight to-primary bg-clip-text text-transparent;
+  }
+
+  /* Subtle top hairline used across surfaces */
+  .hairline-top {
+    @apply relative;
+  }
+
+  .hairline-top::before {
+    content: "";
+    @apply absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent;
+  }
+}
+
+@utility container-page {
+  @apply mx-auto w-full max-w-6xl px-6 lg:px-8;
+}
