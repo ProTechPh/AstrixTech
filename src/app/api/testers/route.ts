@@ -92,11 +92,23 @@ export async function POST(request: NextRequest) {
     ip,
   };
 
-  // 1. Automatically write directly to Excel (.xlsx), CSV, and JSON
-  await saveTesterToExcel(testerRecord);
+  // 1. Synchronize to live Google Sheet (checks duplicates directly in sheet)
+  const syncResult = await syncTesterToOnlineSheet(testerRecord);
+  if (syncResult.duplicate) {
+    return NextResponse.json(
+      {
+        error: "This Google Play email is already registered on our tester roster.",
+        fieldErrors: {
+          email: "This email is already registered as a tester.",
+        },
+        alreadyRegistered: true,
+      },
+      { status: 409 }
+    );
+  }
 
-  // 2. Synchronize to live Google Sheet or Excel Webhook (if TESTERS_SHEET_WEBHOOK_URL is set)
-  await syncTesterToOnlineSheet(testerRecord);
+  // 2. Automatically write directly to local Excel (.xlsx), CSV, and JSON
+  await saveTesterToExcel(testerRecord);
 
   // 3. Optional: Only send email if explicitly enabled in environment variables.
   // By default, this is disabled so you won't be spammed with emails.
