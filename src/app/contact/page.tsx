@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { ArrowUpRight, CalendarClock, Mail, ShieldCheck, Smartphone } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight, CalendarClock, Mail, ShieldCheck, Smartphone } from "lucide-react";
 
 import { ContactForm } from "@/components/forms/contact-form";
 import { PageHero } from "@/components/layout/page-hero";
@@ -98,15 +99,25 @@ export default function ContactPage() {
                   <p className="mt-1 text-sm leading-relaxed text-muted">
                     AstrixTech has a verified developer profile on Google Play.
                   </p>
-                  <a
-                    href={site.links.playStore}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-highlight transition-colors hover:text-foreground"
-                  >
-                    Visit our Play Store page
-                    <ArrowUpRight className="size-3.5" aria-hidden="true" />
-                  </a>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <a
+                      href={site.links.playStore}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-highlight transition-colors hover:text-foreground"
+                    >
+                      Visit our Play Store page
+                      <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                    </a>
+                    <span className="text-white/20" aria-hidden="true">•</span>
+                    <Link
+                      href="/testers"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-highlight"
+                    >
+                      Become a Closed Tester
+                      <ArrowRight className="size-3.5" aria-hidden="true" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </Reveal>

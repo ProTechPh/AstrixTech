@@ -12,6 +12,7 @@ const footerNav: { title: string; links: { title: string; href: string }[] }[] =
     links: [
       { title: "Home", href: "/" },
       { title: "About", href: "/about" },
+      { title: "Testers", href: "/testers" },
       { title: "Contact", href: "/contact" },
     ],
   },

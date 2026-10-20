@@ -9,6 +9,7 @@ export const primaryNav: NavLink[] = [
   { title: "About", href: "/about" },
   { title: "Services", href: "/services" },
   { title: "Technologies", href: "/technologies" },
+  { title: "Testers", href: "/testers" },
   { title: "Contact", href: "/contact" },
 ];
 

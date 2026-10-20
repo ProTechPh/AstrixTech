@@ -10,7 +10,7 @@ import { Logo } from "@/components/brand/logo";
 import { isActivePath, primaryNav } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 
-const menuIndex = ["01", "02", "03", "04", "05"];
+const formatIndex = (index: number) => String(index + 1).padStart(2, "0");
 
 export function Navbar() {
   const pathname = usePathname();
@@ -157,7 +157,7 @@ export function Navbar() {
                               : "text-muted/60 group-hover:text-highlight"
                           )}
                         >
-                          {menuIndex[index]}
+                          {formatIndex(index)}
                         </span>
                         <span
                           className={cn(

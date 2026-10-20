@@ -5,6 +5,7 @@ import { CtaBanner } from "@/components/sections/cta-banner";
 import { Hero } from "@/components/sections/hero";
 import { ServicesOverview } from "@/components/sections/services-overview";
 import { TechExpertise } from "@/components/sections/tech-expertise";
+import { TesterCta } from "@/components/sections/tester-cta";
 import { WhyChoose } from "@/components/sections/why-choose";
 import { site } from "@/config/site";
 
@@ -22,6 +23,7 @@ export default function HomePage() {
       <ServicesOverview />
       <WhyChoose />
       <TechExpertise />
+      <TesterCta />
       <CtaBanner />
     </>
   );

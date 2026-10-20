@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { site } from "@/config/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["", "/about", "/services", "/technologies", "/contact", "/privacy", "/terms"];
+  const routes = ["", "/about", "/services", "/technologies", "/testers", "/contact", "/privacy", "/terms"];
   // Bump when the site content materially changes; keeps the sitemap static.
   const lastModified = new Date("2026-10-18");
 
