@@ -38,6 +38,7 @@ export function TesterForm() {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm<TesterClientValues>({
     resolver: zodResolver(testerClientSchema),
@@ -65,10 +66,21 @@ export function TesterForm() {
         }),
       });
 
+      const data = (await response.json().catch(() => null)) as {
+        error?: string;
+        fieldErrors?: Record<string, string>;
+        alreadyRegistered?: boolean;
+      } | null;
+
       if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
+        if (data?.fieldErrors) {
+          for (const [field, message] of Object.entries(data.fieldErrors)) {
+            setError(field as keyof TesterClientValues, {
+              type: "server",
+              message,
+            });
+          }
+        }
         throw new Error(
           data?.error ?? "Something went wrong while submitting your tester registration."
         );

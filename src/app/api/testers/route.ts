@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { sendTesterEmail } from "@/lib/email";
-import { saveTesterToExcel, syncTesterToOnlineSheet } from "@/lib/excel";
+import { getAllTesters, saveTesterToExcel, syncTesterToOnlineSheet } from "@/lib/excel";
 import { testerServerSchema } from "@/lib/validations";
 
 /** In-memory rate limiter: 5 requests per IP per 15-minute window. */
@@ -63,9 +63,31 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const normalizedEmail = parsed.data.email.toLowerCase().trim();
+
+  // Check if this Google Play email is already registered
+  const existingTesters = await getAllTesters();
+  const alreadyExists = existingTesters.some(
+    (item) => item.email.toLowerCase().trim() === normalizedEmail
+  );
+
+  if (alreadyExists) {
+    return NextResponse.json(
+      {
+        error: "This Google Play email is already registered on our tester roster.",
+        fieldErrors: {
+          email: "This email is already registered as a tester.",
+        },
+        alreadyRegistered: true,
+      },
+      { status: 409 }
+    );
+  }
+
   const userAgent = request.headers.get("user-agent");
   const testerRecord = {
     ...parsed.data,
+    email: normalizedEmail,
     registeredAt: new Date().toISOString(),
     ip,
   };
