@@ -6,13 +6,14 @@ import { Controller, useForm } from "react-hook-form";
 import { motion, useReducedMotion } from "motion/react";
 
 import { useInteractionTimer } from "@/hooks/use-interaction-timer";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { TurnstileWidget, type TurnstileInstance } from "@/components/ui/turnstile";
 import {
   contactClientSchema,
   SERVICE_OPTIONS,
@@ -33,6 +34,8 @@ function FieldError({ id, children }: { id: string; children?: string }) {
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [serverError, setServerError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | undefined>(undefined);
   const reducedMotion = useReducedMotion();
   const getElapsedTime = useInteractionTimer();
 
@@ -55,6 +58,11 @@ export function ContactForm() {
   });
 
   const onSubmit = async (values: ContactClientValues) => {
+    if (!turnstileToken) {
+      setServerError("Please complete the security check.");
+      return;
+    }
+
     setStatus("submitting");
     setServerError(null);
 
@@ -65,6 +73,7 @@ export function ContactForm() {
         body: JSON.stringify({
           ...values,
           elapsedMs: getElapsedTime(),
+          turnstileToken,
         }),
       });
 
@@ -79,6 +88,8 @@ export function ContactForm() {
 
       setStatus("success");
       reset();
+      setTurnstileToken(null);
+      turnstileRef.current?.reset();
     } catch (error) {
       setServerError(
         error instanceof Error
@@ -86,6 +97,8 @@ export function ContactForm() {
           : "Something went wrong while sending your message."
       );
       setStatus("error");
+      turnstileRef.current?.reset();
+      setTurnstileToken(null);
     }
   };
 
@@ -227,6 +240,21 @@ export function ContactForm() {
           tabIndex={-1}
           autoComplete="off"
           {...register("website")}
+        />
+      </div>
+
+      {/* Cloudflare Turnstile Verification */}
+      <div className="pt-1">
+        <TurnstileWidget
+          ref={turnstileRef}
+          id="contact-turnstile"
+          action="contact"
+          onSuccess={(token) => {
+            setTurnstileToken(token);
+            setServerError(null);
+          }}
+          onExpire={() => setTurnstileToken(null)}
+          onError={() => setTurnstileToken(null)}
         />
       </div>
 

@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { sendTesterEmail } from "@/lib/email";
 import { getAllTesters, saveTesterToExcel, syncTesterToOnlineSheet } from "@/lib/excel";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 import { testerServerSchema } from "@/lib/validations";
 
 /** In-memory rate limiter: 5 requests per IP per 15-minute window. */
@@ -48,6 +49,20 @@ export async function POST(request: NextRequest) {
   const honeypot = (body as { website?: unknown })?.website;
   if (typeof honeypot === "string" && honeypot.length > 0) {
     return NextResponse.json({ ok: true }, { status: 200 });
+  }
+
+  // Cloudflare Turnstile verification
+  const turnstileToken = (body as { turnstileToken?: string })?.turnstileToken;
+  const turnstile = await verifyTurnstileToken({
+    token: turnstileToken,
+    ip,
+  });
+
+  if (!turnstile.success) {
+    return NextResponse.json(
+      { error: turnstile.error ?? "Security verification failed." },
+      { status: 400 }
+    );
   }
 
   const parsed = testerServerSchema.safeParse(body);

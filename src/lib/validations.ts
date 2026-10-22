@@ -57,6 +57,8 @@ export const contactServerSchema = contactFormSchema.extend({
     .int()
     .min(2000, "Form submitted too quickly.")
     .optional(),
+  /** Cloudflare Turnstile token */
+  turnstileToken: z.string().optional(),
 });
 
 export type ContactServerValues = z.infer<typeof contactServerSchema>;
@@ -122,6 +124,8 @@ export const testerServerSchema = testerFormSchema.extend({
     .int()
     .min(2000, "Form submitted too quickly.")
     .optional(),
+  /** Cloudflare Turnstile token */
+  turnstileToken: z.string().optional(),
 });
 
 export type TesterServerValues = z.infer<typeof testerServerSchema>;

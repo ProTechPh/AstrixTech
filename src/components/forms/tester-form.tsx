@@ -4,13 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, HelpCircle, Loader2, Send, Smartphone, TriangleAlert } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { motion, useReducedMotion } from "motion/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useInteractionTimer } from "@/hooks/use-interaction-timer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TurnstileWidget, type TurnstileInstance } from "@/components/ui/turnstile";
 import {
   testerClientSchema,
   type TesterClientValues,
@@ -31,6 +32,8 @@ export function TesterForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
   const [serverError, setServerError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | undefined>(undefined);
   const reducedMotion = useReducedMotion();
   const getElapsedTime = useInteractionTimer();
 
@@ -53,6 +56,11 @@ export function TesterForm() {
   });
 
   const onSubmit = async (values: TesterClientValues) => {
+    if (!turnstileToken) {
+      setServerError("Please complete the security check.");
+      return;
+    }
+
     setStatus("submitting");
     setServerError(null);
 
@@ -63,6 +71,7 @@ export function TesterForm() {
         body: JSON.stringify({
           ...values,
           elapsedMs: getElapsedTime(),
+          turnstileToken,
         }),
       });
 
@@ -89,6 +98,8 @@ export function TesterForm() {
       setSubmittedEmail(values.email);
       setStatus("success");
       reset();
+      setTurnstileToken(null);
+      turnstileRef.current?.reset();
     } catch (error) {
       setServerError(
         error instanceof Error
@@ -96,6 +107,8 @@ export function TesterForm() {
           : "Something went wrong while submitting your tester registration."
       );
       setStatus("error");
+      turnstileRef.current?.reset();
+      setTurnstileToken(null);
     }
   };
 
@@ -264,6 +277,21 @@ export function TesterForm() {
         <p>
           <strong className="text-foreground">Privacy Note:</strong> Your email will only be used to grant you closed testing access in the Google Play Console and send you build notifications. We will never share your email with third parties.
         </p>
+      </div>
+
+      {/* Cloudflare Turnstile Verification */}
+      <div className="pt-1">
+        <TurnstileWidget
+          ref={turnstileRef}
+          id="tester-turnstile"
+          action="tester"
+          onSuccess={(token) => {
+            setTurnstileToken(token);
+            setServerError(null);
+          }}
+          onExpire={() => setTurnstileToken(null)}
+          onError={() => setTurnstileToken(null)}
+        />
       </div>
 
       {/* Submit Button */}
